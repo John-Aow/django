@@ -1,0 +1,44 @@
+python3 -m venv env ใช้ สร้าง virtual มา set up env ก่อน
+source env/bin/activate เปิดใช้
+ติดตั้ง django 
+ใช้ pip3 freeze > requirements.txt
+ใช้ docker-compose up
+กรณี   failed: FATAL:  role "my_user" does not exist คือ django ต่อ db ด้วย user_password ไม่ได้
+วิธีแก้ อ่าน docker hub แก้ environment ให้ถูก
+
+old requirements.txt 
+ Django
+ psycopg2-binary
+ 
+new requirements.txt
+
+aniso8601==9.0.1
+asgiref==3.7.2
+Django==4.2.4
+django-filter==23.2
+djangorestframework==3.14.0
+graphene==3.3
+graphene-django==3.1.5
+graphql-core==3.2.3
+graphql-relay==3.2.0
+Markdown==3.4.4
+promise==2.3
+pytz==2023.3
+six==1.16.0
+sqlparse==0.4.4
+text-unidecode==1.3.4 
+
+========================================
+
+ลองสร้าง djanog แบบ m env แล้ว ลองทำ dockerize
+ลองลงนู่นนี่นั่นแล้วใช้ pip freeze
+อย่าลืม migrate ทุกครั้ง ที่แก้ model และ setting
+python3 manage.py makemigrations
+python3 manage.py migrate
+
+สร้าง super อย่างเร็ว
+python manage.py createsuperuser --email admin@example.com --username admin
+
+กรณีแก้/เพิ่มไฟล์ไม่ได้ 
+pwd
+sudo chown -R chirayu /พาร์ทที่ได้
