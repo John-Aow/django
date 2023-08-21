@@ -14,6 +14,8 @@ class OrderType(DjangoObjectType):
         model = Order
         field = "__all__"
 
+
+
 class ProductType(DjangoObjectType):
     class Meta:
         model = Product
@@ -59,6 +61,7 @@ class ProductInput(graphene.InputObjectType):
     name = graphene.String()
     price = graphene.Float()
     detail = graphene.String()
+    image = graphene.String()
 
 class OrderInput(graphene.InputObjectType):
     id = graphene.ID()
@@ -120,7 +123,7 @@ class CreateProduct(graphene.Mutation):
     @staticmethod
     def mutate(root, info, product_data=None):
         product_instance = Product( 
-            
+            image=product_data.image,
             name=product_data.name,
             price=product_data.price,
             detail=product_data.detail,
@@ -135,11 +138,12 @@ class CreateOrder(graphene.Mutation):
     @staticmethod
     def mutate(root, info, order_data=None):
         now = datetime.datetime.now()
+        Order.objects.filter(user=user_id)
         order_instance = Order.objects.create( 
             qty=order_data.qty,
             user=User.objects.get(pk=order_data.user),
             product=Product.objects.get(pk=order_data.product),
-            created_at=now
+            created_at=now,
         )
 
         order_instance.save()
@@ -222,6 +226,32 @@ class DeleteBook(graphene.Mutation):
         book_instance.delete()
 
         return None
+    
+class DeleteOrder(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID()
+
+    order = graphene.Field(OrderType)
+
+    @staticmethod
+    def mutate(root, info, id):
+        order_instance = Order.objects.get(pk=id)
+        order_instance.delete()
+
+        return None
+    
+class DeleteProduct(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID()
+
+    product = graphene.Field(ProductType)
+
+    @staticmethod
+    def mutate(root, info, id):
+        product_instance = Product.objects.get(pk=id)
+        product_instance.delete()
+
+        return None
 
 
 class Query(graphene.ObjectType):
@@ -243,7 +273,9 @@ class Query(graphene.ObjectType):
     
     user = graphene.Field(UserType, user_id=graphene.Int())
 
-    find_order = graphene.Field(OrderType, user_id=graphene.Int())
+    find_order = graphene.List(OrderType, user_id=graphene.Int(), product_id=graphene.Int())
+
+    cart_order = graphene.Field(OrderType, user_id=graphene.Int())
 
 
     def resolve_all_user(self, info, **kwargs):
@@ -258,8 +290,11 @@ class Query(graphene.ObjectType):
     def resolve_product(self, info, product_id):
         return Product.objects.get(pk=product_id)
     
-    def resolve_find_order(self, info, user_id):
-        return Order.objects.filter(user=user_id)
+    def resolve_cart_order(self, info, user_id):
+        return Order.objects.filter(user=user_id, status='CA')
+    
+    def resolve_find_order(self, info, user_id, product_id):
+        return Order.objects.filter(user__id=user_id, product__id=product_id, status='CA')
     
     def resolve_order(self, info, order_id):
         return Order.objects.get(pk=order_id)
@@ -280,4 +315,6 @@ class Mutation(graphene.ObjectType):
     create_user = CreateUser.Field()
     create_product = CreateProduct.Field()
     create_order = CreateOrder.Field()
+    delete_product = DeleteProduct.Field()
+    delete_order = DeleteOrder.Field()
 schema = graphene.Schema(query=Query, mutation=Mutation)

@@ -25,31 +25,9 @@ class Product(models.Model):
     name = models.CharField(max_length=100)
     price = models.FloatField()
     detail = models.CharField(max_length=255)
+    image = models.CharField(default=None, blank=True, null=True, max_length=255)
     def __str__(self):
         return self.name
-    
-
-class Order(models.Model):
-    product = models.ForeignKey(Product, null=True, on_delete=models.SET_NULL)
-    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
-    qty = models.IntegerField()
-    created_at = models.DateField(default=None, blank=True, null=True)
-    updated_at = models.DateField(default=None, blank=True, null=True)
-    CART = "CA"
-    SHIPMANET = "SH"
-    ORDER = "OR"
-    STATUS = [
-        (CART, "cart"),
-        (ORDER, "order"),
-        (SHIPMANET, "shipment"),
-    ]
-    status = models.CharField(
-        max_length=2,
-        choices=STATUS,
-        default=CART,
-    )
-    def __str__(self):
-        return self.product_id 
     
 
 class Shipment(models.Model):
@@ -74,7 +52,31 @@ class Shipment(models.Model):
         default=PENDING,
     )
     def __str__(self):
-        return self.product_id 
+        return self.track_no
+    
+class Order(models.Model):
+    #shipment = models.ForeignKey(Shipment, null=True, on_delete=models.SET_NULL, default=None, blank=True)
+    product = models.ForeignKey(Product, null=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    qty = models.IntegerField(default=0, blank=True, null=True)
+    note = models.CharField(max_length=100, default=None, blank=True, null=True)
+    created_at = models.DateField(default=None, blank=True, null=True)
+    updated_at = models.DateField(default=None, blank=True, null=True)
+    CART = "CA"
+    SHIPMANET = "SH"
+    ORDER = "OR"
+    STATUS = [
+        (CART, "cart"),
+        (ORDER, "order"),
+        (SHIPMANET, "shipment"),
+    ]
+    status = models.CharField(
+        max_length=2,
+        choices=STATUS,
+        default=CART,
+    )
+    def __str__(self):
+        return self.note
     
 class ShipmentDetail(models.Model):
     order = models.IntegerField()
