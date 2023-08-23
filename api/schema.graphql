@@ -1,0 +1,231 @@
+type Query {
+  allBooks: [BookType]
+  book(bookId: Int): BookType
+  allUser: [UserType]
+  allProduct: [ProductType]
+  allOrder: [OrderType]
+  allAddress: [AddressType]
+  order(orderId: Int): OrderType
+  product(productId: Int): ProductType
+  user(userId: Int): UserType
+  findOrder(userId: Int, productId: Int): [OrderType]
+  cartOrder(userId: Int): [OrderType]
+}
+
+type BookType {
+  id: ID!
+  title: String!
+  author: String!
+  yearPublished: String!
+  review: Int!
+}
+
+type UserType {
+  id: ID!
+  name: String!
+  lastname: String!
+  email: String!
+  tel: String!
+  wallet: Float!
+  shipmentSet: [ShipmentType!]!
+  orderSet: [OrderType!]!
+  addressSet: [AddressType!]!
+}
+
+type ShipmentType {
+  id: ID!
+  trackNo: String!
+  address: Int
+  user: UserType
+  shipmentDate: Int!
+  recievedDate: Int!
+  createdAt: Date!
+  updatedAt: Date!
+  status: ApiShipmentStatusChoices!
+  orderSet: [OrderType!]!
+}
+
+"""
+The `Date` scalar type represents a Date
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar Date
+
+"""An enumeration."""
+enum ApiShipmentStatusChoices {
+  """success"""
+  SU
+
+  """shipping"""
+  SH
+
+  """success"""
+  SU_2
+}
+
+type OrderType {
+  id: ID!
+  shipment: ShipmentType
+  product: ProductType
+  user: UserType
+  qty: Int
+  note: String
+  createdAt: Date
+  updatedAt: Date
+  status: ApiOrderStatusChoices!
+}
+
+type ProductType {
+  id: ID!
+  name: String!
+  price: Float!
+  detail: String!
+  image: String
+  orderSet: [OrderType!]!
+}
+
+"""An enumeration."""
+enum ApiOrderStatusChoices {
+  """cart"""
+  CA
+
+  """order"""
+  OR
+
+  """shipment"""
+  SH
+}
+
+type AddressType {
+  id: ID!
+  user: UserType
+  houseNo: String!
+  district: String!
+  subDistrict: String!
+  provine: String!
+  street: String!
+  postcode: String!
+}
+
+type Mutation {
+  """Obtain JSON Web Token mutation"""
+  tokenAuth(username: String!, password: String!): ObtainJSONWebToken
+  verifyToken(token: String): Verify
+  refreshToken(token: String): Refresh
+  createBook(bookData: BookInput!): CreateBook
+  updateBook(bookData: BookInput!): UpdateBook
+  deleteBook(id: ID): DeleteBook
+  createUser(userData: UserInput!): CreateUser
+  createProduct(productData: ProductInput!): CreateProduct
+  createOrder(orderData: OrderInput!): CreateOrder
+  deleteProduct(id: ID): DeleteProduct
+  deleteOrder(id: ID): DeleteOrder
+  checkout(data: CheckoutInput!): Checkout
+}
+
+"""Obtain JSON Web Token mutation"""
+type ObtainJSONWebToken {
+  payload: GenericScalar!
+  refreshExpiresIn: Int!
+  token: String!
+}
+
+"""
+The `GenericScalar` scalar type represents a generic
+GraphQL scalar value that could be:
+String, Boolean, Int, Float, List or Object.
+"""
+scalar GenericScalar
+
+type Verify {
+  payload: GenericScalar!
+}
+
+type Refresh {
+  payload: GenericScalar!
+  refreshExpiresIn: Int!
+  token: String!
+}
+
+type CreateBook {
+  book: BookType
+}
+
+input BookInput {
+  id: ID
+  title: String
+  author: String
+  yearPublished: String
+  review: Int
+}
+
+type UpdateBook {
+  book: BookType
+}
+
+type DeleteBook {
+  book: BookType
+}
+
+type CreateUser {
+  user: UserType
+}
+
+input UserInput {
+  id: ID
+  email: String
+  lastname: String
+  name: String
+  tel: String
+}
+
+type CreateProduct {
+  product: ProductType
+}
+
+input ProductInput {
+  id: ID
+  name: String
+  price: Float
+  detail: String
+  image: String
+}
+
+type CreateOrder {
+  order: OrderType
+}
+
+input OrderInput {
+  id: ID
+  product: Int
+  user: Int
+  qty: Int
+  status: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+"""
+The `DateTime` scalar type represents a DateTime
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar DateTime
+
+type DeleteProduct {
+  product: ProductType
+}
+
+type DeleteOrder {
+  order: OrderType
+}
+
+type Checkout {
+  shipment: ShipmentType
+}
+
+input CheckoutInput {
+  listOrder: [Int]
+  user: Int
+}

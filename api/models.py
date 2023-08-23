@@ -32,7 +32,7 @@ class Product(models.Model):
 
 class Shipment(models.Model):
     track_no = models.CharField(max_length=100)
-    address = models.IntegerField()
+    address = models.IntegerField(default=None, blank=True, null=True)
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     shipment_date = models.IntegerField()
     recieved_date = models.IntegerField()
@@ -55,7 +55,7 @@ class Shipment(models.Model):
         return self.track_no
     
 class Order(models.Model):
-    #shipment = models.ForeignKey(Shipment, null=True, on_delete=models.SET_NULL, default=None, blank=True)
+    shipment = models.ForeignKey(Shipment, null=True, on_delete=models.SET_NULL, default=None, blank=True)
     product = models.ForeignKey(Product, null=True, on_delete=models.SET_NULL)
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     qty = models.IntegerField(default=0, blank=True, null=True)

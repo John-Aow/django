@@ -1,5 +1,6 @@
 import graphene
 import datetime
+import graphql_jwt
 from graphene_django import DjangoObjectType, DjangoListField 
 from .models import Book, User, Order, Product, Admin, Address, Shipment, ShipmentDetail
 from graphene_django.filter import DjangoFilterConnectionField
@@ -72,6 +73,10 @@ class OrderInput(graphene.InputObjectType):
     created_at = graphene.DateTime()
     updated_at = graphene.DateTime()
 
+class CheckoutInput(graphene.InputObjectType):
+    list_order = graphene.List(graphene.Int)
+    user = graphene.Int()
+
 class AddressInput(graphene.InputObjectType):
     id = graphene.ID()
     house_no = graphene.String()
@@ -138,7 +143,6 @@ class CreateOrder(graphene.Mutation):
     @staticmethod
     def mutate(root, info, order_data=None):
         now = datetime.datetime.now()
-        Order.objects.filter(user=user_id)
         order_instance = Order.objects.create( 
             qty=order_data.qty,
             user=User.objects.get(pk=order_data.user),
@@ -149,6 +153,61 @@ class CreateOrder(graphene.Mutation):
         order_instance.save()
         return CreateOrder(order=order_instance)
     
+class Checkout(graphene.Mutation):
+    class Arguments:
+        data = CheckoutInput(required=True)
+    shipment = graphene.Field(ShipmentType)
+    @staticmethod
+    def mutate(root, info, data=None):
+        now = datetime.datetime.now()
+        shipment_instance = Shipment.objects.create(
+            created_at=now,
+            updated_at=now,
+            shipment_date=0,
+            recieved_date=0,
+            user=User.objects.get(pk=data.user),
+        )
+        shipment_instance.save()
+        #list_order
+        for x in data.list_order:
+            order = Order.objects.get(pk=x)
+            order.shipment = shipment_instance
+            order.status = 'SH'
+            order.save()
+        return Checkout(shipment=shipment_instance)
+
+class DeleteOrder(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID()
+
+    order = graphene.Field(OrderType)
+
+    @staticmethod
+    def mutate(root, info, id):
+        order_instance = Order.objects.get(pk=id)
+        order_instance.delete()
+
+        return None
+    
+class UpdateOrder(graphene.Mutation):
+    class Arguments:
+        order_data = OrderInput(required=True)
+
+    order = graphene.Field(OrderType)
+
+    @staticmethod
+    def mutate(root, info, order_data=None):
+
+        order_instance = Order.objects.get(pk=order_data.id)
+        now = datetime.datetime.now()
+        if order_instance:
+            qty=order_data.qty,
+            updated_at=now,
+            order_instance.save()
+
+            return UpdateBook(order=order_instance)
+        return UpdateBook(order=None)
+
 class CreateAddress(graphene.Mutation):
     class Arguments:
         address_data = AddressInput(required=True)
@@ -213,7 +272,7 @@ class UpdateBook(graphene.Mutation):
 
             return UpdateBook(book=book_instance)
         return UpdateBook(book=None)
-    
+
 class DeleteBook(graphene.Mutation):
     class Arguments:
         id = graphene.ID()
@@ -224,19 +283,6 @@ class DeleteBook(graphene.Mutation):
     def mutate(root, info, id):
         book_instance = Book.objects.get(pk=id)
         book_instance.delete()
-
-        return None
-    
-class DeleteOrder(graphene.Mutation):
-    class Arguments:
-        id = graphene.ID()
-
-    order = graphene.Field(OrderType)
-
-    @staticmethod
-    def mutate(root, info, id):
-        order_instance = Order.objects.get(pk=id)
-        order_instance.delete()
 
         return None
     
@@ -275,7 +321,7 @@ class Query(graphene.ObjectType):
 
     find_order = graphene.List(OrderType, user_id=graphene.Int(), product_id=graphene.Int())
 
-    cart_order = graphene.Field(OrderType, user_id=graphene.Int())
+    cart_order = graphene.List(OrderType, user_id=graphene.Int())
 
 
     def resolve_all_user(self, info, **kwargs):
@@ -309,6 +355,9 @@ class Query(graphene.ObjectType):
         return Book.objects.get(pk=book_id)
     
 class Mutation(graphene.ObjectType):
+    token_auth = graphql_jwt.ObtainJSONWebToken.Field()
+    verify_token = graphql_jwt.Verify.Field()
+    refresh_token = graphql_jwt.Refresh.Field()
     create_book = CreateBook.Field()
     update_book = UpdateBook.Field()
     delete_book = DeleteBook.Field()
@@ -317,4 +366,5 @@ class Mutation(graphene.ObjectType):
     create_order = CreateOrder.Field()
     delete_product = DeleteProduct.Field()
     delete_order = DeleteOrder.Field()
+    checkout = Checkout.Field()
 schema = graphene.Schema(query=Query, mutation=Mutation)

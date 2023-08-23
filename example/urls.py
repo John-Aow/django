@@ -20,12 +20,19 @@ from graphene_django.views import GraphQLView
 from rest_framework import routers
 from example.quickstart import views
 from django.views.decorators.csrf import csrf_exempt
+from django.urls import path, include
+from rest import views as views2
+from rest.views import TakeList3
+from api.views import UserViews
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
+router.register(r'TakeList3', TakeList3, basename='TakeList3')
+router.register(r'UserViews',UserViews, basename='UserViews')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('graphql', csrf_exempt(GraphQLView.as_view(graphiql=True))),
     path('', include(router.urls)),
+    path('api-auth/', include('rest_framework.urls')) 
 ]
