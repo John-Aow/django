@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     
 ]
 
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -178,3 +179,4 @@ REST_FRAMEWORK = {
 GRAPHQL_JWT = {
     "JWT_ALLOW_ARGUMENT": True,
 }
+
