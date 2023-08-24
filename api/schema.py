@@ -186,10 +186,11 @@ class DeleteOrder(graphene.Mutation):
     def mutate(root, info, id):
         order_instance = Order.objects.get(pk=id)
         find = order_instance.user.id
+        order_data = Order.objects.filter(user__id=find,status='CA' )
         print(find)
         order_instance.delete()
 
-        return Order.objects.filter(user__id=find, status='CA')
+        return DeleteOrder(order=order_data)
     
 class UpdateOrder(graphene.Mutation):
     class Arguments:
