@@ -219,7 +219,7 @@ type DeleteProduct {
 }
 
 type DeleteOrder {
-  order: OrderType
+  order: [OrderType]
 }
 
 type Checkout {
