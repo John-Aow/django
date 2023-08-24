@@ -23,13 +23,14 @@ from django.views.decorators.csrf import csrf_exempt
 from django.urls import path, include
 from rest import views as views2
 from rest.views import TakeList3
-from api.views import UserViews, ProductViews
+from api.views import UserViews, ProductViews, OrderViews
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
 router.register(r'TakeList3', TakeList3, basename='TakeList3')
 router.register(r'UserViews',UserViews, basename='UserViews')
 router.register(r'Product',ProductViews, basename='ProductViews')
+router.register(r'Order',OrderViews, basename='OrderViews')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

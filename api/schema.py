@@ -323,6 +323,8 @@ class Query(graphene.ObjectType):
 
     cart_order = graphene.List(OrderType, user_id=graphene.Int())
 
+    all_ship = graphene.List(ShipmentType)
+
 
     def resolve_all_user(self, info, **kwargs):
         return User.objects.all()
@@ -353,6 +355,9 @@ class Query(graphene.ObjectType):
 
     def resolve_book(self, info, book_id):
         return Book.objects.get(pk=book_id)
+    
+    def resolve_all_shipment():
+        return Shipment.objects.all()
     
 class Mutation(graphene.ObjectType):
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()

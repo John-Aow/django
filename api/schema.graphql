@@ -10,6 +10,7 @@ type Query {
   user(userId: Int): UserType
   findOrder(userId: Int, productId: Int): [OrderType]
   cartOrder(userId: Int): [OrderType]
+  allShip: [ShipmentType]
 }
 
 type BookType {

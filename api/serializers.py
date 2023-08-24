@@ -17,9 +17,16 @@ class ShipmentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class OrderSerializer(serializers.ModelSerializer):
+    product = ProductSerializer()
+    class Meta:
+        model = Order
+        fields = ['id','shipment','product','user','qty','note','created_at','updated_at','status','shipment', 'product']
+
+class CreateOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = '__all__'
+
 
 class ShipmentDetailSerializer(serializers.ModelSerializer):
     class Meta:

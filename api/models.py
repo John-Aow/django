@@ -56,7 +56,7 @@ class Shipment(models.Model):
     
 class Order(models.Model):
     shipment = models.ForeignKey(Shipment, null=True, on_delete=models.SET_NULL, default=None, blank=True)
-    product = models.ForeignKey(Product, null=True, on_delete=models.SET_NULL)
+    product = models.ForeignKey(Product, null=True, on_delete=models.SET_NULL, default=None, blank=True)
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     qty = models.IntegerField(default=0, blank=True, null=True)
     note = models.CharField(max_length=100, default=None, blank=True, null=True)
