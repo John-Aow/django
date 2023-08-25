@@ -26,6 +26,7 @@ class Product(models.Model):
     price = models.FloatField()
     detail = models.CharField(max_length=255)
     image = models.CharField(default=None, blank=True, null=True, max_length=255)
+    stock = models.IntegerField(default=0)
     def __str__(self):
         return self.name
     
@@ -55,7 +56,8 @@ class Shipment(models.Model):
         return self.track_no
     
 class Order(models.Model):
-    shipment = models.ForeignKey(Shipment, null=True, on_delete=models.SET_NULL, default=None, blank=True)
+    #shipment = models.ForeignKey(Shipment, null=True, on_delete=models.SET_NULL, default=None, blank=True)
+    shipment_id = models.ForeignKey(Shipment, null=True, on_delete=models.SET_NULL, default=None, blank=True)
     product = models.ForeignKey(Product, null=True, on_delete=models.SET_NULL, default=None, blank=True)
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     qty = models.IntegerField(default=0, blank=True, null=True)
@@ -77,6 +79,9 @@ class Order(models.Model):
     )
     def __str__(self):
         return self.note
+    
+    def addNewItem(self):
+        pass
     
 class ShipmentDetail(models.Model):
     order = models.IntegerField()
